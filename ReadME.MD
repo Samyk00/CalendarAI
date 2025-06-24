@@ -4,6 +4,18 @@ This is a premium, high-efficiency web application built with Python and Streaml
 
 The application is designed for a fast and error-free workflow, allowing an HR professional to generate and send a complete, templated interview invitation in seconds.
 
+<table align="center">
+  <tr>
+    <td align="center">
+      <p><strong>Main Interface</strong></p>
+      <img src="assets/images/main.png" alt="Main application interface" width="400">
+    </td>
+    <td align="center">
+      <p><strong>Invitation Preview</strong></p>
+      <img src="assets/images/generate.png" alt="Invitation preview card" width="400">
+    </td>
+  </tr>
+</table>
 
 ---
 
