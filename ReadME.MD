@@ -11,8 +11,12 @@ The application is designed for a fast and error-free workflow, allowing an HR p
       <img src="assets/images/main.png" alt="Main application interface" width="400">
     </td>
     <td align="center">
-      <p><strong>Invitation Preview</strong></p>
+      <p><strong>Generate Preview</strong></p>
       <img src="assets/images/generate.png" alt="Invitation preview card" width="400">
+    </td>
+    <td align="center">
+      <p><strong>Preview</strong></p>
+      <img src="assets/images/preview.png" alt="Invitation preview card" width="400">
     </td>
   </tr>
 </table>
