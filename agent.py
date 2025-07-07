@@ -4,7 +4,10 @@ import json
 from datetime import datetime
 from openai import OpenAI
 
-OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"] 
+# --- DEPLOYMENT-READY SECRET LOADING ---
+# This line now ONLY reads from Streamlit's secrets manager.
+OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_API_KEY,
@@ -15,9 +18,8 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
     Takes structured data and uses an LLM to compose the title and event body
     based on the selected interview type.
     """
-
-    interview_date_str = interview_datetime.strftime("%B %dth, %Y") # e.g., June 20th, 2025
-    interview_time_str = interview_datetime.strftime("%I:%M %p IST") # e.g., 12:00 PM IST
+    interview_date_str = interview_datetime.strftime("%B %dth, %Y")
+    interview_time_str = interview_datetime.strftime("%I:%M %p IST")
 
     prompt = f"""
     You are an expert HR assistant who creates perfectly formatted calendar event details in JSON.
@@ -39,11 +41,11 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
     2.  **Event Body Format:** You MUST use the correct template based on the "Interview Type" provided.
 
         **IF `Interview Type` is "Interview":**
-        Use this exact template, replacing bracketed variables.
         ---
         Hi {candidate_name},
 
         This is to confirm your interview scheduled for {interview_date_str} at {interview_time_str}.
+        A unique Google Meet link for joining the meeting will be automatically generated and included in this calendar invitation.
 
         Following this discussion, we will evaluate your candidature and move forward with the next steps accordingly.
 
@@ -56,11 +58,11 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
         ---
 
         **IF `Interview Type` is "Final Interview":**
-        Use this exact template, replacing bracketed variables.
         ---
         Hi {candidate_name},
 
         I’m pleased to confirm your final round interview scheduled for {interview_date_str} at {interview_time_str}.
+        A unique Google Meet link for joining the meeting will be automatically generated and included in this calendar invitation.
 
         In this session, you will be meeting with the Director of the company, who will assess your in-depth expertise for this role. Based on this conversation, we will proceed with your candidature accordingly.
 
