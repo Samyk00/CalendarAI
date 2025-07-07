@@ -4,8 +4,14 @@ import json
 from datetime import datetime
 from openai import OpenAI
 
-# Securely loads the key from Streamlit secrets
-OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+# The incorrect 'from agent import ...' line that was here has been removed.
+
+# --- Hybrid Secret Loading ---
+# Tries to load from Streamlit Cloud secrets. If it fails, it loads from your local config.py
+try:
+    OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+except (KeyError, FileNotFoundError):
+    from config import OPENROUTER_API_KEY
 
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
@@ -13,10 +19,16 @@ client = OpenAI(
 )
 
 def compose_event_details(candidate_name, job_title, job_location, interview_datetime, job_description, interview_type):
+    """
+    Takes structured data and uses an LLM to compose the title and event body
+    based on the selected interview type.
+    """
     interview_date_str = interview_datetime.strftime("%B %dth, %Y")
     interview_time_str = interview_datetime.strftime("%I:%M %p IST")
+
     prompt = f"""
-    You are an expert HR assistant creating perfectly formatted calendar event details in JSON. Based on the data, create a "title" and "event_body".
+    You are an expert HR assistant who creates perfectly formatted calendar event details in JSON.
+    Your task is to take the provided structured data and create a "title" and "event_body" according to the rules.
 
     **Provided Data:**
     - Candidate's Name: "{candidate_name}"
@@ -28,8 +40,10 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
     - Interview Type: "{interview_type}"
 
     **Formatting Rules:**
-    1.  Title Format: "Interview confirmed: {job_title} - {job_location} - TechCarrel"
-    2.  Event Body Format: Use the correct template for the Interview Type.
+
+    1.  **Title Format:** The title MUST be: "Interview confirmed: {job_title} - {job_location} - TechCarrel"
+
+    2.  **Event Body Format:** You MUST use the correct template based on the "Interview Type" provided.
 
         **IF `Interview Type` is "Interview":**
         ---
@@ -57,7 +71,7 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
 
         In this session, you will be meeting with the Director of the company, who will assess your in-depth expertise for this role. Based on this conversation, we will proceed with your candidature accordingly.
 
-        Please be punctual and well-prepared for the discussion. Feel free to reach out if you need any assistance.
+        Please be punctual and well-prepared for the discussion. Feel free to reach out if you have any assistance.
 
 
         Job Description:
@@ -65,10 +79,18 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
         {job_description}
         ---
     
-    Output ONLY the raw JSON object with "title" and "event_body" keys. Use `\\n` for newlines.
+    **Output:**
+    Your output MUST be ONLY the raw JSON object with two keys: "title" and "event_body". Use `\\n` for newlines in the `event_body`.
     """
+    
     response = client.chat.completions.create(
         model="mistralai/mistral-nemo:free",
-        messages=[{"role": "system", "content": "You are a helpful JSON formatting assistant."}, {"role": "user", "content": prompt}],
-        temperature=0.0, timeout=60.0 )
-    return json.loads(response.choices[0].message.content)
+        messages=[
+            {"role": "system", "content": "You are an HR assistant that generates perfectly formatted JSON for calendar events based on structured data and strict conditional rules."},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.0,
+        timeout=60.0,
+    )
+    composed_details_str = response.choices[0].message.content
+    return json.loads(composed_details_str)
