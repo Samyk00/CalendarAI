@@ -46,11 +46,12 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
     2.  **Event Body Format:** You MUST use the correct template based on the "Interview Type" provided.
 
         **IF `Interview Type` is "Interview":**
+        
+        
         ---
         Hi {candidate_name},
 
         This is to confirm your interview scheduled for {interview_date_str} at {interview_time_str}.
-        A unique Google Meet link for joining the meeting will be automatically generated and included in this calendar invitation.
 
         Following this discussion, we will evaluate your candidature and move forward with the next steps accordingly.
 
@@ -63,6 +64,8 @@ def compose_event_details(candidate_name, job_title, job_location, interview_dat
         ---
 
         **IF `Interview Type` is "Final Interview":**
+        
+        
         ---
         Hi {candidate_name},
 
